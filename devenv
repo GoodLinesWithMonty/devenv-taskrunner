@@ -26,12 +26,14 @@ BLUE_BOLD="\033[1;34m"
 MAGENTA_BOLD="\033[1;35m"
 CYAN_BOLD="\033[1;36m"
 
+# Function to check if devenv can perform in current directory
 check_if_devenv() {
   # Check if git is installed
   if ! command -v git > /dev/null 2>&1; then
       echo -e "${RED_BOLD}Git ${RED}is necessary to run devenv task runner!${NOCOLOR}"
       exit 1
   fi
+  # Check if current directory is within an initialized git repository - we need git to get easily the project-root
   if [[ $(git rev-parse --show-toplevel 2>/dev/null) ]]; then
     # Check if .build directory is available in project
     if [[ ! -d $(git rev-parse --show-toplevel)/.build ]]; then
@@ -52,9 +54,14 @@ check_if_devenv() {
 }
 
 execute_devenv_command() {
-. $(git rev-parse --show-toplevel)/.build/devenv-functions.sh && "$@"
+  . $(git rev-parse --show-toplevel)/.build/devenv-functions.sh && "$@"
 }
 
+# First we need to check if we can perform devenv
 check_if_devenv
-# Pass all arguments to devenv project script
+
+# Write exec path .build to var for all devenv tasks
+DEVENV_EXECUTABLE_PATH="$(git rev-parse --show-toplevel)/.build/"
+
+# Pass all arguments to each devenv task
 execute_devenv_command "$@"
