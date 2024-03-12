@@ -17,8 +17,8 @@ sudo chmod +x /usr/local/bin/devenv
 ```
 
 ## Usage
-Create a directory for your project and create the directory ```.build``` within for your project specific stuff e.g. docker compose files. In this directory you need the script file ```devenv-functions.sh``` which holds all your custom tasks.
-In your devenv-functions.sh file you have to define bash functions for your propose which can called with ```devenv nameOfYourFunction argument1 argument2```
+Create a directory named ```.build``` in your project root path for your project setup e.g. docker compose files. In this directory you need a script file ```devenv-functions.sh``` which holds all your custom tasks.
+You have to define bash functions in your script file for your custom needs, which can be executed then with ```devenv <function> <arg1> <arg2> ...```
 
 ## Customisation
 You can name this devenv file whatever you want to define the cli command before you copy it to ```/usr/local/bin/devenv```.
@@ -29,15 +29,36 @@ sudo chmod +x /usr/local/bin/runmytask
 ```
 
 ## Best practice 
-A available dotenv file in the project ```.build``` directory will be automatically loaded to export variables to your devenv environment.
+A dotenv file in the project build directory will be automatically loaded to export variables to your devenv functions.
 
 <sub style="color:grey;"><project-root>/.build/.env</sub>
-
 ```
 PROJECT_KEY="example"
 ```
 
-## Example
+## Examples
+
+<sub style="color:grey;">Project folder tree</sub>
+```text
+project-root
+├── .build                      <- required
+│   ├── .env                    <- optional
+│   ├── compose.yaml
+│   ├── deploy.php
+│   ├── devenv-functions.sh     <- required
+│   └── Docker
+│       └── php
+│           └── Dockerfile
+├── .composer
+│   └── ...
+├── web
+│   ├── public
+│   ├── vendor
+│   └── ...
+├── .gitignore
+└── README.md
+```
+
 <sub style="color:grey;"><project-root>/.build/devenv-functions.sh</sub>
 ```bash
 source ./Tasks/001-default.sh
@@ -56,7 +77,7 @@ halt() {
   docker compose down "$@"
 }
 
-docker:shell() {
+shell() {
   docker exec -it "$@" bash
 }
 
