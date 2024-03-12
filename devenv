@@ -1,67 +1,89 @@
 #!/usr/bin/env bash
-
+############################## devenv core start ##############################
 set -o errexit
 set -o pipefail
 
-NOCOLOR='\033[0m'
+CLEAR='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-LIGHTGRAY='\033[0;37m'
 DARKGRAY='\033[1;30m'
-LIGHTRED='\033[1;31m'
-LIGHTGREEN='\033[1;32m'
 YELLOW='\033[1;33m'
-LIGHTBLUE='\033[1;34m'
-LIGHTPURPLE='\033[1;35m'
-LIGHTCYAN='\033[1;36m'
 WHITE='\033[1;37m'
-RED_BOLD="\033[1;31m"
-GREEN_BOLD="\033[1;32m"
-YELLOW_BOLD="\033[1;33m"
-BLUE_BOLD="\033[1;34m"
-MAGENTA_BOLD="\033[1;35m"
-CYAN_BOLD="\033[1;36m"
 
-# Function to check if devenv can perform in current directory
-check_if_devenv() {
-  # Check if git is installed
+boot_devenv() {
+  check_git_installed
+  check_git_init
+  check_build_folder
+  export_project_build_path
+  check_devenv_function_script
+  load_project_dotenv
+
+  success "Running devenv ..."
+}
+
+check_devenv_function_script() {
+  if [[ ! -e ${PROJECT_BUILD}/devenv-functions.sh ]]; then
+    throw_error "${PROJECT_BUILD}/devenv-functions.sh is missing!"
+  fi
+}
+
+check_build_folder() {
+  if [[ ! -d $(git rev-parse --show-toplevel)/.build ]]; then
+    throw_error "$(git rev-parse --show-toplevel)/.build/ is missing!"
+  fi
+}
+
+check_git_installed() {
   if ! command -v git > /dev/null 2>&1; then
-      echo -e "${RED_BOLD}Git ${RED}is necessary to run devenv task runner!${NOCOLOR}"
-      exit 1
+    throw_error "Git is necessary to run devenv task runner!"
   fi
-  # Check if current directory is within an initialized git repository - we need git to get easily the project-root
+}
+
+check_git_init() {
   if [[ $(git rev-parse --show-toplevel 2>/dev/null) ]]; then
-    # Check if .build directory is available in project
-    if [[ ! -d $(git rev-parse --show-toplevel)/.build ]]; then
-      echo -e "⚠️ ${RED_BOLD}$(pwd)/.build/ ${RED}is missing!${NOCOLOR}"
-      exit 1
-    fi
-
-    # Check if devenv-functions.sh file is available in project
-    if [[ ! -e $(git rev-parse --show-toplevel)/.build/devenv-functions.sh ]]; then
-      echo -e "⚠️ ${RED_BOLD}$(pwd)/.build/devenv-functions.sh ${RED}is missing!${NOCOLOR}"
-      exit 1
-    fi
-
+    :
   else
-    echo -e "⚠️ ${RED}You must init a git repository before you can use devenv task runner!${NOCOLOR}"
-    exit 1
+    throw_error "You must init a git repository before you can use devenv task runner!"
   fi
+}
+
+export_project_build_path() {
+  set -o allexport
+  PROJECT_BUILD="$(git rev-parse --show-toplevel)/.build"
+  set +o allexport
+}
+
+load_project_dotenv() {
+  if [[ -e ${PROJECT_BUILD}/.env ]]; then
+    success "Found project .env file"
+    set -o allexport
+    source ${PROJECT_BUILD}/.env
+    set +o allexport
+  fi
+}
+
+throw_warning() {
+  printf "${ORANGE}WARNING: ${ORANGE}$@${CLEAR}\n"
+  exit 0
+}
+
+throw_error() {
+  printf "${RED}ERROR: ${RED}$@${CLEAR}\n"
+  exit 1
+}
+
+success() {
+  printf "${GREEN}$@${CLEAR}\n"
 }
 
 execute_devenv_command() {
-  . $(git rev-parse --show-toplevel)/.build/devenv-functions.sh && "$@"
+  . ${PROJECT_BUILD}/devenv-functions.sh && "$@"
 }
 
-# First we need to check if we can perform devenv
-check_if_devenv
-
-# Write exec path .build to var for all devenv tasks
-DEVENV_EXECUTABLE_PATH="$(git rev-parse --show-toplevel)/.build/"
-
-# Pass all arguments to each devenv task
+############################## devenv core end ##############################
+boot_devenv
 execute_devenv_command "$@"

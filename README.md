@@ -28,8 +28,12 @@ sudo cp devenv /usr/local/bin/runmytask
 sudo chmod +x /usr/local/bin/runmytask
 ```
 
-## Example
+## Best practice 
+To simplify the interaction with used docker container and customization of project tasks,
+it is recommanded to define a project key in a dotenv file in ```.build``` directory.
+You should create a dotenv file in the project .build directory with 
 
+## Example
 <sub style="color:grey;"><project-root>/.build/devenv-functions.sh</sub>
 ```bash
 include ./Tasks/001-default.sh
