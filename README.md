@@ -29,16 +29,20 @@ sudo chmod +x /usr/local/bin/runmytask
 ```
 
 ## Best practice 
-To simplify the interaction with used docker container and customization of project tasks,
-it is recommanded to define a project key in a dotenv file in ```.build``` directory.
-You should create a dotenv file in the project .build directory with 
+A available dotenv file in the project ```.build``` directory will be automatically loaded to export variables to your devenv environment.
+
+<sub style="color:grey;"><project-root>/.build/.env</sub>
+
+```
+PROJECT_KEY="example"
+```
 
 ## Example
 <sub style="color:grey;"><project-root>/.build/devenv-functions.sh</sub>
 ```bash
-include ./Tasks/001-default.sh
-include ./Tasks/002-install.sh
-include ./Tasks/003-linting.sh
+source ./Tasks/001-default.sh
+source ./Tasks/002-install.sh
+source ./Tasks/003-linting.sh
 
 build:css() {
   gulp --dev build
