@@ -1,12 +1,15 @@
 # Bash based task runner for all your projects
 
+## Another task runner, why?
+It is simple, adaptable, customizable, slim, lightweight and easy to understand. The goal was to serve a task runner without any dependencies.
+
 ## What does it do?
 This little script file ```devenv``` provides a cli task runner only written with bash for all your projects. 
 It does not serve any functions, you have to define each useful function for your project on your own. 
 Use it to handle docker compose commands or to interact with your toolchain in a normalized way for example.
 
 ## Requirements
-You just need git installed on your machine, nothing else.
+You just need git and bash installed on your machine, nothing else.
 
 ## Install
 Copy the script file ```devenv``` to ```/usr/local/bin/devenv``` and make it executable ```chmod +x devenv```.
